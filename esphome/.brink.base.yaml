@@ -11,10 +11,10 @@ esphome:
 # Enable Home Assistant API
 api:
 
-# Enable OTA updates - done in brink.yaml 
+# Enable OTA updates - done in brink.yaml
 # ota:
 #   - platform: esphome
-  
+
 # dashboard_import:
 #   package_import_url: https://github.com/fonske/Brink-flair-modbus
 
@@ -28,7 +28,7 @@ time:
         - logger.log: "Synchronized sntp clock"
 
 script:
-###  On reboot or powerloss of the esp, set the command to Modbus Step instead of Device LCD which is the default.
+  ###  On reboot or powerloss of the esp, set the command to Modbus Step instead of Device LCD which is the default.
   - id: on_boot
     then:
       - lambda: |-
@@ -41,7 +41,7 @@ script:
           delay(20) ;
           controller->queue_command(set_value_cmd);
 
-## Option for multiple DS18b20's on last 3 terminals -/S(ignal)/+ 
+## Option for multiple DS18b20's on last 3 terminals -/S(ignal)/+
 ## Comment with # if not used.
 ### DS18b20's ###
 #dallas:
@@ -57,48 +57,47 @@ modbus:
 
 modbus_controller:
   - id: ${name}
-    ## Brink Modbus slaveaddress 20
-    address: ${modbusaddress} 
+    ## Brink Modbus slaveaddress 1
+    address: ${modbusaddress}
     command_throttle: 200ms
     setup_priority: -10
     update_interval: 10s
 
 sensor:
+  ## Option for multiple DS18b20 on last 3 terminals -/Signal/+
+  ## Comment with # if not used.
+  ## 2x ds18b20:
+  #  - platform: dallas
+  #    address: 0x233c01f095e2ca28  ##find adress in esphome log
+  #    name: Temperature 1
+  #    id: temperature_1
+  #    filters:
+  #    - filter_out: NAN
+  #    - offset: 0.3
 
-## Option for multiple DS18b20 on last 3 terminals -/Signal/+ 
-## Comment with # if not used.
-## 2x ds18b20: 
-#  - platform: dallas
-#    address: 0x233c01f095e2ca28  ##find adress in esphome log
-#    name: Temperature 1
-#    id: temperature_1
-#    filters:
-#    - filter_out: NAN
-#    - offset: 0.3
+  #  - platform: dallas
+  #    address: 0x903c01f095ea8128  ##find adress in esphome log
+  #    name: Temperature 2
+  #    id: temperature_2
+  #    filters:
+  #   - filter_out: NAN
+  #   - offset: 0.1
 
-#  - platform: dallas
-#    address: 0x903c01f095ea8128  ##find adress in esphome log
-#    name: Temperature 2
-#    id: temperature_2
-#    filters:
-#   - filter_out: NAN
-#   - offset: 0.1
+  #  - platform: dallas
+  #    address: 0xcd3c01f095d5a128  ##find adress in esphome log
+  #    name: Temperature 3
+  #    id: temperature_3
+  #    filters:
+  #    - filter_out: NAN
+  #    - offset: -0.1
 
-#  - platform: dallas
-#    address: 0xcd3c01f095d5a128  ##find adress in esphome log
-#    name: Temperature 3
-#    id: temperature_3
-#    filters:
-#    - filter_out: NAN
-#    - offset: -0.1
-
-#  - platform: dallas
-#    address: 0x633c01f095619f28  ##find adress in esphome log
-#    name: Temperature 4
-#    id: temperature_4
-#    filters:
-#    - filter_out: NAN
-#    - offset: 0.0
+  #  - platform: dallas
+  #    address: 0x633c01f095619f28  ##find adress in esphome log
+  #    name: Temperature 4
+  #    id: temperature_4
+  #    filters:
+  #    - filter_out: NAN
+  #    - offset: 0.0
 
   - id: brink_temp_to_inside
     name: ${brink_temp_to_inside}
@@ -123,7 +122,7 @@ sensor:
     address: 4037
     device_class: humidity
     unit_of_measurement: "%"
-    value_type: U_WORD  
+    value_type: U_WORD
     accuracy_decimals: 0
     state_class: measurement
 
@@ -131,12 +130,12 @@ sensor:
     name: ${brink_dewpoint_to_inside}
     platform: template
     lambda: |-
-        return (243.5*(log(id(brink_humidity_to_inside).state/100)+((17.67*id(brink_temp_to_inside).state)/
-        (243.5+id(brink_temp_to_inside).state)))/(17.67-log(id(brink_humidity_to_inside).state/100)-
-        ((17.67*id(brink_temp_to_inside).state)/(243.5+id(brink_temp_to_inside).state))));
+      return (243.5*(log(id(brink_humidity_to_inside).state/100)+((17.67*id(brink_temp_to_inside).state)/
+      (243.5+id(brink_temp_to_inside).state)))/(17.67-log(id(brink_humidity_to_inside).state/100)-
+      ((17.67*id(brink_temp_to_inside).state)/(243.5+id(brink_temp_to_inside).state))));
     unit_of_measurement: °C
     update_interval: 15s
-    icon: 'mdi:thermometer-water'
+    icon: "mdi:thermometer-water"
 
   - id: brink_temp_to_outside
     name: ${brink_temp_to_outside}
@@ -161,11 +160,11 @@ sensor:
     address: 4047
     device_class: humidity
     unit_of_measurement: "%"
-    value_type: U_WORD  
+    value_type: U_WORD
     accuracy_decimals: 0
     state_class: measurement
 
-  - id: brink_temp_from_outside  # NTC1
+  - id: brink_temp_from_outside # NTC1
     name: ${brink_temp_from_outside}
     platform: modbus_controller
     modbus_controller_id: ${name}
@@ -188,12 +187,12 @@ sensor:
     address: 4023
     device_class: atmospheric_pressure
     unit_of_measurement: "Pa"
-    value_type: S_WORD  
+    value_type: S_WORD
     accuracy_decimals: 0
     state_class: measurement
     filters:
       - multiply: 1.0
-    
+
   - id: brink_exhaust_pressure
     name: ${brink_exhaust_pressure}
     platform: modbus_controller
@@ -203,7 +202,7 @@ sensor:
     address: 4024
     device_class: atmospheric_pressure
     unit_of_measurement: "Pa"
-    value_type: S_WORD  
+    value_type: S_WORD
     accuracy_decimals: 0
     state_class: measurement
     filters:
@@ -383,7 +382,7 @@ text_sensor:
         case 14:  mode_str = "Auto Lan/ Wlan local"; break;                                                         
       }
       return mode_str;
-  
+
   - id: brink_bypass_status
     name: ${brink_bypass_status}
     platform: modbus_controller
@@ -465,56 +464,56 @@ select:
   - id: brink_modbus_control_mode
     name: Modbus Control Mode
     platform: modbus_controller
-    modbus_controller_id: ${name} 
+    modbus_controller_id: ${name}
     address: 8000
     value_type: S_WORD
     optimistic: true
     skip_updates: 20
     optionsmap:
-      "Device LCD": 0      
+      "Device LCD": 0
       "Modbus Step": 1
       "Modbus Flow": 2
-#    on_value:
-#        then:
-#          - lambda: |-
-#              std::string current_mode_str = id(brink_modbus_control_mode).state;
-#              std::string requested_mode_str = x;  // 'x' is the requested mode value
-#
-#              // Convert strings to integers using the options map
-#              int current_mode = 0;
-#              if (current_mode_str == "Device LCD") {
-#                current_mode = 0;
-#              } else if (current_mode_str == "Modbus Step") {
-#                current_mode = 1;
-#              } else if (current_mode_str == "Modbus Flow") {
-#                current_mode = 2;
-#              }
-#
-#              int requested_mode = 0;
-#              if (requested_mode_str == "Device LCD") {
-#                requested_mode = 0;
-#              } else if (requested_mode_str == "Modbus Step") {
-#                requested_mode = 1;
-#              } else if (requested_mode_str == "Modbus Flow") {
-#                requested_mode = 2;
-#              }
-#
-#              if (current_mode == requested_mode) {
-#                ESP_LOGI("control mode", "Control mode already set, no switching needed.");
-#                return;  // Prevent switching if the mode is already active
-#              }
-#
-#              ESP_LOGI("Control mode", "Control mode to: %d", requested_mode);
-#              esphome::modbus_controller::ModbusController *controller = id(${name});
-#              auto set_value_cmd = esphome::modbus_controller::ModbusCommandItem::create_write_single_command(
-#                controller, 8000, requested_mode);
-#              delay(20) ;
-#              controller->queue_command(set_value_cmd); 
+  #    on_value:
+  #        then:
+  #          - lambda: |-
+  #              std::string current_mode_str = id(brink_modbus_control_mode).state;
+  #              std::string requested_mode_str = x;  // 'x' is the requested mode value
+  #
+  #              // Convert strings to integers using the options map
+  #              int current_mode = 0;
+  #              if (current_mode_str == "Device LCD") {
+  #                current_mode = 0;
+  #              } else if (current_mode_str == "Modbus Step") {
+  #                current_mode = 1;
+  #              } else if (current_mode_str == "Modbus Flow") {
+  #                current_mode = 2;
+  #              }
+  #
+  #              int requested_mode = 0;
+  #              if (requested_mode_str == "Device LCD") {
+  #                requested_mode = 0;
+  #              } else if (requested_mode_str == "Modbus Step") {
+  #                requested_mode = 1;
+  #              } else if (requested_mode_str == "Modbus Flow") {
+  #                requested_mode = 2;
+  #              }
+  #
+  #              if (current_mode == requested_mode) {
+  #                ESP_LOGI("control mode", "Control mode already set, no switching needed.");
+  #                return;  // Prevent switching if the mode is already active
+  #              }
+  #
+  #              ESP_LOGI("Control mode", "Control mode to: %d", requested_mode);
+  #              esphome::modbus_controller::ModbusController *controller = id(${name});
+  #              auto set_value_cmd = esphome::modbus_controller::ModbusCommandItem::create_write_single_command(
+  #                controller, 8000, requested_mode);
+  #              delay(20) ;
+  #              controller->queue_command(set_value_cmd);
 
   - id: brink_bypass_mode
     name: Bypass Mode
     platform: modbus_controller
-    modbus_controller_id: ${name}  
+    modbus_controller_id: ${name}
     address: 6100
     value_type: S_WORD
     skip_updates: 20
@@ -523,49 +522,49 @@ select:
       ${closed}: 1
       ${open}: 2
     on_value:
-        then:
-          - lambda: |-
-              // Add any other conditions to prevent switching, such as external states
-              int volume = id(brink_current_inlet_volume).state;
-              if (volume > 200) {
-                ESP_LOGI("bypass", "switching is blocked. Inlet volume > 220 m3/h. Value: %d m3/h", volume);
-                return;
-              }
+      then:
+        - lambda: |-
+            // Add any other conditions to prevent switching, such as external states
+            int volume = id(brink_current_inlet_volume).state;
+            if (volume > 200) {
+              ESP_LOGI("bypass", "switching is blocked. Inlet volume > 220 m3/h. Value: %d m3/h", volume);
+              return;
+            }
 
-              std::string current_mode_str = id(brink_bypass_mode).state;
-              std::string requested_mode_str = x;  // 'x' is the requested mode value
+            std::string current_mode_str = id(brink_bypass_mode).state;
+            std::string requested_mode_str = x;  // 'x' is the requested mode value
 
-              // Convert strings to integers using the options map
-              int current_mode = 0;
-              if (current_mode_str == "${auto}") {
-                current_mode = 0;
-              } else if (current_mode_str == "${closed}") {
-                current_mode = 1;
-              } else if (current_mode_str == "${open}") {
-                current_mode = 2;
-              }
+            // Convert strings to integers using the options map
+            int current_mode = 0;
+            if (current_mode_str == "${auto}") {
+              current_mode = 0;
+            } else if (current_mode_str == "${closed}") {
+              current_mode = 1;
+            } else if (current_mode_str == "${open}") {
+              current_mode = 2;
+            }
 
-              int requested_mode = 0;
-              if (requested_mode_str == "${auto}") {
-                requested_mode = 0;
-              } else if (requested_mode_str == "${closed}") {
-                requested_mode = 1;
-              } else if (requested_mode_str == "${open}") {
-                requested_mode = 2;
-              }
+            int requested_mode = 0;
+            if (requested_mode_str == "${auto}") {
+              requested_mode = 0;
+            } else if (requested_mode_str == "${closed}") {
+              requested_mode = 1;
+            } else if (requested_mode_str == "${open}") {
+              requested_mode = 2;
+            }
 
-              if (current_mode == requested_mode) {
-                ESP_LOGI("bypass", "Bypass mode already set, no switching needed.");
-                return;  // Prevent switching if the mode is already active
-              }
+            if (current_mode == requested_mode) {
+              ESP_LOGI("bypass", "Bypass mode already set, no switching needed.");
+              return;  // Prevent switching if the mode is already active
+            }
 
 
-              ESP_LOGI("bypass", "Switching bypass mode to: %d", requested_mode);
-              esphome::modbus_controller::ModbusController *controller = id(${name});
-              auto set_value_cmd = esphome::modbus_controller::ModbusCommandItem::create_write_single_command(
-                controller, 6100, requested_mode);
-              delay(20) ;
-              controller->queue_command(set_value_cmd); 
+            ESP_LOGI("bypass", "Switching bypass mode to: %d", requested_mode);
+            esphome::modbus_controller::ModbusController *controller = id(${name});
+            auto set_value_cmd = esphome::modbus_controller::ModbusCommandItem::create_write_single_command(
+              controller, 6100, requested_mode);
+            delay(20) ;
+            controller->queue_command(set_value_cmd);
 
 switch:
   - id: brink_bypass_boost
@@ -582,7 +581,7 @@ switch:
     name: Reset Filter
     platform: modbus_controller
     modbus_controller_id: ${name}
-    register_type: holding  
+    register_type: holding
     address: 8010
     bitmask: 1
     icon: mdi:toggle-switch
@@ -599,7 +598,7 @@ switch:
             auto set_value_cmd = esphome::modbus_controller::ModbusCommandItem::create_write_single_command(
               controller, 8003, 1);
             delay(20) ;
-            controller->queue_command(set_value_cmd);    
+            controller->queue_command(set_value_cmd);
     on_turn_off:
       then:
         - lambda: |-
@@ -626,7 +625,6 @@ button:
               strftime(str, sizeof(str), "%a %d %b %H:%M", localtime(&currTime));
               return  { str };
 
-
 ## temporarely test button for Step modbus mode after reboot or powerloss
 #  - id: brink_step_modbus
 #    name: Set Modbus Control Mode - Switch
@@ -649,9 +647,9 @@ number:
   - id: brink_bypass_boost_switch_position
     name: ${brink_bypass_boost_switch_position}
     platform: modbus_controller
-    modbus_controller_id: ${name}  
+    modbus_controller_id: ${name}
     address: 6105
-    value_type: S_WORD      
+    value_type: S_WORD
     min_value: 0
     max_value: 3
     mode: slider
@@ -663,35 +661,35 @@ number:
     modbus_controller_id: ${name}
     register_type: holding
     address: 8001
-    value_type: S_WORD      
+    value_type: S_WORD
     min_value: 0
     max_value: 3
     mode: slider
     icon: mdi:fan
- 
+
   - id: brink_imbalance_intake
     name: ${brink_imbalance_intake}
     platform: modbus_controller
     modbus_controller_id: ${name}
     address: 6035
     unit_of_measurement: "%"
-    value_type: S_WORD   
-    multiply: 10    
+    value_type: S_WORD
+    multiply: 10
     min_value: -15
     max_value: 15
     mode: slider
     icon: mdi:home-import-outline
 
-##  BYPASS OPEN
-##  ▪ De buitentemperatuur is hoger dan 10°C (instelbaar tussen 7°C en 15°C) EN
-##  ▪ de buitentemperatuur is lager dan de binnentemperatuur uit de woning EN
-##  ▪ de binnentemperatuur uit woning is hoger dan 24°C ( instelbaar tussen 15°C en 35°C )
+  ##  BYPASS OPEN
+  ##  ▪ De buitentemperatuur is hoger dan 10°C (instelbaar tussen 7°C en 15°C) EN
+  ##  ▪ de buitentemperatuur is lager dan de binnentemperatuur uit de woning EN
+  ##  ▪ de binnentemperatuur uit woning is hoger dan 24°C ( instelbaar tussen 15°C en 35°C )
 
-##  BYPASS DICHT
-##  ▪ De buitentemperatuur is lager dan 10° (instelbaar tussen 7°C en 15°C) C OF
-##  ▪ de buitentemperatuur is hoger dan de binnentemperatuur uit de woning OF
-##  ▪ de temperatuur uit de woning is lager dan de ingestelde temperatuur
-##    minus de ingestelde temperatuur bij de hysterese
+  ##  BYPASS DICHT
+  ##  ▪ De buitentemperatuur is lager dan 10° (instelbaar tussen 7°C en 15°C) C OF
+  ##  ▪ de buitentemperatuur is hoger dan de binnentemperatuur uit de woning OF
+  ##  ▪ de temperatuur uit de woning is lager dan de ingestelde temperatuur
+  ##    minus de ingestelde temperatuur bij de hysterese
 
   - id: brink_bypass_from_dwelling ## van binnen naar buitenuitblaas, default 24 °C
     name: ${brink_bypass_from_dwelling}
@@ -738,7 +736,7 @@ number:
     mode: slider
     icon: mdi:home-edit-outline
 
-### Vorstbeveiliging
+  ### Vorstbeveiliging
   - id: brink_frost_control_temperature ## default 0 °C
     name: ${brink_frost_control_temperature}
     platform: modbus_controller
@@ -746,7 +744,7 @@ number:
     address: 6110
     unit_of_measurement: "°C"
     device_class: temperature
-    value_type: S_WORD      
+    value_type: S_WORD
     min_value: -1.5
     max_value: 1.5
     step: 0.5
@@ -754,14 +752,14 @@ number:
     mode: slider
     icon: mdi:home-export-outline
 
-  - id: brink_frost_minimum_inlet_temperature  ## default 10 °C
+  - id: brink_frost_minimum_inlet_temperature ## default 10 °C
     name: ${brink_frost_minimum_inlet_temperature}
     platform: modbus_controller
     modbus_controller_id: ${name}
     address: 6111
     device_class: temperature
     unit_of_measurement: "°C"
-    value_type: S_WORD      
+    value_type: S_WORD
     min_value: 7
     max_value: 17
     step: 0.5
@@ -769,27 +767,27 @@ number:
     mode: slider
     icon: mdi:home-export-outline
 
-  - id: brink_imbalance_exhaust  ## default 0
+  - id: brink_imbalance_exhaust ## default 0
     name: ${brink_imbalance_exhaust}
     platform: modbus_controller
     modbus_controller_id: ${name}
     address: 6036
     unit_of_measurement: "%"
-    value_type: S_WORD      
-    multiply: 10 
+    value_type: S_WORD
+    multiply: 10
     min_value: -15
     max_value: 15
     mode: slider
     icon: mdi:home-export-outline
 
   - id: brink_filter_change_days
-    name:  ${brink_filter_change_days}
+    name: ${brink_filter_change_days}
     platform: modbus_controller
     modbus_controller_id: ${name}
     register_type: holding
     address: 6120
     unit_of_measurement: ""
-    value_type: S_WORD      
+    value_type: S_WORD
     min_value: 0
     max_value: 365
     mode: slider
