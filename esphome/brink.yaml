@@ -22,7 +22,7 @@ packages:
       [
         esphome/boards/board-esp32.yaml,
         esphome/type/brink-400.yaml,
-        esphome/labels/.brink-labels-en.yaml,
+        esphome/labels/.brink-labels-de.yaml,
         esphome/.brink.base.yaml,
       ]
     ## options are:
