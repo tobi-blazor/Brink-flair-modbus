@@ -24,7 +24,7 @@ packages:
         esphome/type/brink-400.yaml,
         esphome/labels/.brink-labels-de.yaml,
         esphome/.brink.base.yaml,
-        esphome/sensors/sensor-scd41-i2c-m5stack.yaml,
+        esphome/sensors/sensor-scd41-i2c-m5stack_new.yaml,
       ]
     ## options are:
     # esphome/type/.brink-300.yaml
