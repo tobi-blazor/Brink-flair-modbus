@@ -17,25 +17,9 @@ uart:
 
 # i2c for extra sensor
 i2c:
-  - id: bus_a
-    sda: 21
-    scl: 22
-    scan: true
   - id: bus_b
     sda: 4
     scl: 5
-    scan: true
-  - id: bus_c
-    sda: 18
-    scl: 19
-    scan: true
-  - id: bus_d
-    sda: 23
-    scl: 25
-    scan: true
-  - id: bus_e
-    sda: 26
-    scl: 27
     scan: true
 
 # Enable/Disable logging
