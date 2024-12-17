@@ -1,7 +1,7 @@
 sensor:
   - platform: scd4x
     id: scd40
-    automatic_self_calibration: False
+    automatic_self_calibration: True
     co2:
       name: ${brink_co2_from_inside}
       id: brink_co2_from_inside
