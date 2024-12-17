@@ -4,14 +4,13 @@ sensor:
     co2:
       name: ${brink_co2_from_inside}
       id: brink_co2_from_inside
-    #    humidity:
-    #      name: ${brink_humidity_from_inside}
-    #      id: brink_humidity_from_inside
-    #    temperature:
-    #      name: ${brink_temp_from_inside}
-    #      id: brink_temp_from_inside
-    #    temperature_offset: "4.2°C"
-    #    measurement_mode: low_power_periodic
+        humidity:
+          name: ${brink_humidity_from_inside}
+          id: brink_humidity_from_inside
+        temperature:
+          name: ${brink_temp_from_inside}
+          id: brink_temp_from_inside
+        measurement_mode: low_power_periodic
     i2c_id: bus_b #or choose bus_b
     address: 0x62
     update_interval: 30s
