@@ -22,6 +22,36 @@ i2c:
   scan: true
   id: bus_a
 
+# i2c for extra sensor
+i2c:
+  sda: 4
+  scl: 5
+  scan: true
+  id: bus_b
+
+# i2c for extra sensor
+i2c:
+  sda: 18
+  scl: 19
+  scan: true
+  id: bus_c
+
+# i2c for extra sensor
+i2c:
+  sda: 23
+  scl: 25
+  scan: true
+  id: bus_d
+
+# i2c for extra sensor
+i2c:
+  sda: 26
+  scl: 27
+  scan: true
+  id: bus_e
+
+  
+
 # Enable/Disable logging
 logger:
   logs:

@@ -1,0 +1,289 @@
+- theme: Backend-selected
+  title: Brink
+  path: brink
+  icon: mdi:fan
+  badges: []
+  cards:
+    - type: entities
+      entities:
+        - entity: sensor.brink_bypass_status
+          name: Bypass Status
+        - entity: sensor.brink_filter_status
+          name: Filter Status
+        - entity: sensor.brink_aktuelles_zuluft_volumen
+          name: Aktuelles Zuluft Volumen
+        - entity: sensor.brink_aktuelles_abluft_volumen
+          name: Aktuelles Abluft Volumen
+        - entity: sensor.brink_luftfeuchtigkeitssensor_extern
+          name: Luftfeuchtigkeitssensor (extern)
+        - entity: sensor.brink_filter_reset_angeschaltet
+          name: Filter Reset angeschaltet
+        - entity: sensor.brink_aktuelle_filtertage
+          name: Aktuelle Filtertage
+        - entity: sensor.brink_aktuelle_filterstunden
+          name: Aktuelle Filterstunden
+        - entity: sensor.brink_filternutzung_m3_h
+          name: Filternutzung (m³)
+        - entity: sensor.brink_status
+          name: Status
+        - entity: sensor.brink_zuluft_druck
+          name: Zuluft Druck
+        - entity: sensor.brink_abluft_druck
+          name: Abluft Druck
+        - entity: sensor.brink_zuluft_taupunkt
+          name: Zuluft Taupunkt
+        - entity: sensor.brink_außenluft_temparatur
+          name: Außenluft Temparatur
+        - entity: sensor.brink_frost_status
+          name: Frost Status
+        - entity: sensor.brink_frost_vorheizer_power
+          name: Frost Vorheizer Power
+        - entity: sensor.brink_frost_lüfter_reduktion
+          name: Frost Lüfter-Reduktion
+      show_header_toggle: false
+    - type: vertical-stack
+      cards:
+        - type: picture-elements
+          image: local/images/wtw_icons2.png
+          elements:
+            - type: state-label
+              entity: sensor.brink_aktuelles_zuluft_volumen
+              style:
+                top: 59%
+                left: 73%
+                color: black
+            - type: state-label
+              entity: sensor.brink_aktuelles_abluft_volumen
+              style:
+                top: 59%
+                left: 27%
+                color: black
+            - type: state-label
+              entity: sensor.brink_außenluft_temparatur
+              style:
+                top: 20%
+                left: 92%
+                color: darkred
+            - type: state-label
+              entity: sensor.brink_abluft_luftfeuchtigkeit
+              style:
+                top: 30%
+                left: 92%
+                color: "#4171b1"
+            - type: state-label
+              entity: sensor.brink_zuluft_temperatur
+              style:
+                top: 77%
+                left: 92%
+                color: darkred
+            - type: state-label
+              entity: sensor.brink_zuluft_luftfeuchtigkeit
+              style:
+                top: 85%
+                left: 92%
+                color: "#4171b1"
+            - type: state-label
+              entity: sensor.brink_außenluft_temparatur
+              style:
+                top: 20%
+                left: 14.5%
+                color: "#4171b1"
+            - type: state-label
+              entity: sensor.brink_fortluft_luftfeuchtigkeit
+              style:
+                top: 28%
+                left: 14.5%
+                color: "#4171b1"
+            - type: state-label
+              entity: sensor.brink_fortluft_temparatur
+              style:
+                top: 77%
+                left: 14.5%
+                color: "#4171b1"
+            - type: state-label
+              entity: sensor.brink_zuluft_luftfeuchtigkeit
+              style:
+                top: 85%
+                left: 14.5%
+                color: "#4171b1"
+            - type: state-label
+              entity: sensor.brink_bypass_status
+              prefix: "Bypass: "
+              style:
+                top: 26%
+                left: 50%
+                color: black
+            - type: state-label
+              entity: sensor.brink_performance
+              prefix: "η= "
+              style:
+                top: 72%
+                left: 50%
+                color: black
+            - type: state-label
+              entity: sensor.brink_filter_austauschen_in
+              prefix: "Filter austauschen in: "
+              style:
+                top: 92%
+                left: 50%
+                color: black
+            - type: state-label
+              entity: sensor.brink_co2_abluft
+              prefix: "Co2 "
+              style:
+                top: 10%
+                left: 90%
+                color: grey
+        - type: entity
+          entity: sensor.power_14
+          state_color: false
+          name: power
+          icon: mdi:power-socket-eu
+        - type: horizontal-stack
+          cards:
+            - type: custom:button-card
+              styles:
+                card:
+                  - height: 150px
+              icon: mdi:fan-auto
+              size: 75%
+              show_state: true
+              state:
+                - operator: template
+                  value: |
+                    [[[
+                      return states['number.brink_modbus_preset_switch'].state == "0.0"
+                    ]]]
+                  color: darkcyan
+              tap_action:
+                action: call-service
+                service: number.set_value
+                service_data:
+                  value: 0
+                  entity_id: number.brink_modbus_preset_switch
+            - type: custom:button-card
+              styles:
+                card:
+                  - height: 150px
+              icon: mdi:fan-speed-1
+              size: 75%
+              show_state: true
+              state:
+                - operator: template
+                  value: |
+                    [[[
+                      return states['number.brink_modbus_preset_switch'].state == 1.0
+                    ]]]
+                  color: darkcyan
+                - operator: default
+              tap_action:
+                action: call-service
+                service: number.set_value
+                service_data:
+                  value: 1
+                  entity_id: number.brink_modbus_preset_switch
+            - type: custom:button-card
+              styles:
+                card:
+                  - height: 150px
+              icon: mdi:fan-speed-2
+              size: 75%
+              show_state: true
+              state:
+                - operator: template
+                  value: |
+                    [[[
+                      return states['number.brink_modbus_preset_switch'].state == "2.0"
+                    ]]]
+                  color: darkcyan
+              tap_action:
+                action: call-service
+                service: number.set_value
+                service_data:
+                  value: 2
+                  entity_id: number.brink_modbus_preset_switch
+            - type: custom:button-card
+              styles:
+                card:
+                  - height: 150px
+              icon: mdi:fan-speed-3
+              size: 75%
+              show_state: true
+              state:
+                - operator: template
+                  value: |
+                    [[[
+                      return states['number.brink_modbus_preset_switch'].state == "3.0"
+                    ]]]
+                  color: darkcyan
+              tap_action:
+                action: call-service
+                service: number.set_value
+                service_data:
+                  value: 3
+                  entity_id: number.brink_modbus_preset_switch
+        - type: entities
+          entities:
+            - entity: select.brink_bypass_mode
+              name: Brink bypass mode
+          show_header_toggle: false
+        - type: history-graph
+          hours_to_show: 24
+          entities:
+            - entity: sensor.brink_haus_abluft
+              name: Haus zu Zuluft
+            - entity: sensor.brink_haus_zuluft
+              name: Haus Abluft
+            - entity: sensor.brink_außenluft_temparatur
+              name: Außenluft Temperatur
+            - entity: sensor.brink_abluft_luftfeuchtigkeit
+              name: Abluft Luftfeuchtigkeit
+            - entity: sensor.brink_zuluft_luftfeuchtigkeit
+              name: Zuluft Luftfeuchtigkeit
+            - entity: sensor.brink_luftfeuchtigkeitssensor_extern
+              name: Luftfeuchtigkeitssensor (extern)
+        - type: history-graph
+          hours_to_show: 24
+          entities:
+            - entity: sensor.brink_co2_abluft
+        - type: entities
+          entities:
+            - entity: select.brink_modbus_steuermodus
+              name: Modbus Steuerung
+            - entity: number.brink_flow_0
+              name: Flow 0
+            - entity: number.brink_flow_1
+              name: Flow 1
+            - entity: number.brink_flow_2
+              name: Flow 2
+            - entity: number.brink_flow_3
+              name: Flow 3
+            - entity: number.brink_modbus_voreinstellung
+              name: Modbus Voreinstellung
+            - entity: number.brink_modbus_lüftergeschwindigkeit
+              name: Modbus Lüftergeschwindigkeit
+            - entity: number.brink_zuluft_ungleichgewicht
+              name: Zuluft Ungleichgewicht
+            - entity: number.brink_abluft_ungleichgewicht
+              name: Abluft Ungleichgewicht
+            - entity: switch.brink_bypass_boost
+              name: Bypass Boost
+            - entity: number.brink_bypass_temperatur_von_außen
+              name: Bypass Temperatur von außen
+            - entity: number.brink_bypass_temperatur_von_innen
+              name: Bypass Temperatur von innen
+            - entity: number.brink_bypass_hysterese
+              name: Bypass Hysterese
+            - entity: number.brink_filterwarnung_tage
+              name: Tage vor Filterwarnung
+            - entity: button.brink_filter_reset
+              name: Filter Reset
+            - entity: switch.brink_rht_sensor
+              name: RHT Sensor aktiv
+            - entity: number.brink_frostschutztemperatur
+              name: Frostschutztemperatur
+            - entity: number.brink_mindest_einblastemparatur
+              name: Mindest-Einblastemparatur
+            - entity: switch.brink_standby_schalter
+              name: Standby Schalter
+          show_header_toggle: false

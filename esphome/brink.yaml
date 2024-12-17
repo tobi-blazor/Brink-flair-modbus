@@ -24,6 +24,7 @@ packages:
         esphome/type/brink-400.yaml,
         esphome/labels/.brink-labels-de.yaml,
         esphome/.brink.base.yaml,
+        esphome/sensors/sensor-enviv-i2c-m5stack.yaml,
       ]
     ## options are:
     # esphome/type/.brink-300.yaml
