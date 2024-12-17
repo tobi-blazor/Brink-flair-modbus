@@ -18,9 +18,10 @@ uart:
 # i2c for extra sensor
 i2c:
   - id: bus_b
-    sda: 4
-    scl: 5
+    sda: GPIO4
+    scl: GPIO5
     scan: true
+    frequency: 400000 # Set I2C bus speed to 400kHz
 
 # Enable/Disable logging
 logger:
