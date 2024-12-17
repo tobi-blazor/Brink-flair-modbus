@@ -1,19 +1,33 @@
-## Option for M5stack SCD41, CO2, humidity and temperature sensor on i2c bus. I2C must be enabled.
 sensor:
   - platform: scd4x
+    id: scd40
+    automatic_self_calibration: False
     co2:
       name: ${brink_co2_from_inside}
       id: brink_co2_from_inside
-        humidity:
-          name: ${brink_humidity_from_inside}
+      accuracy_decimals: 1
+    temperature:
+      name: ${brink_temp_from_inside}
+      id: brink_temp_from_inside
+      accuracy_decimals: 2
+    humidity:
+      name: ${brink_humidity_from_inside}
           id: brink_humidity_from_inside
-        temperature:
-          name: ${brink_temp_from_inside}
-          id: brink_temp_from_inside
-        measurement_mode: low_power_periodic
-    i2c_id: bus_b #or choose bus_b
+      accuracy_decimals: 1
+    i2c_id: bus_b
     address: 0x62
-    update_interval: 30s
+    update_interval: 10s
+  - platform: template
+    name: "VPD"
+    icon: "mdi:gauge"
+    id: gr2_ace_vpd
+    lambda: |-
+          return (((100 - id(humidity).state) / 100) * (0.6108 * 2.718281828459045 * (17.27 * ((id(temperature).state)) / (((id(temperature).state)) + 237.3))));
+    update_interval: 10s
+    unit_of_measurement: kPa
+    accuracy_decimals: 2
+    filters:
+      - filter_out: nan
 ## Performance now can be calculated with the extra temperature sensor.
 #  - id: brink_performance
 #    name: ${brink_performance}
@@ -22,3 +36,6 @@ sensor:
 #    update_interval: 30s
 #    lambda: 'return ((id(brink_temp_to_inside).state - id(brink_temp_from_outside).state)/(id(brink_temp_from_inside).state - id(brink_temp_from_outside).state)*100);'
 # (temp_to_inside - temp_from_outside) / (temp_from_inside - temp_from_outside)
+
+
+
