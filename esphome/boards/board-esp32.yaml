@@ -17,7 +17,7 @@ uart:
 
 # i2c for extra sensor
 i2c:
-  - id: bus_b
+  - id: bus_a
     sda: 21
     scl: 22
     scan: true
