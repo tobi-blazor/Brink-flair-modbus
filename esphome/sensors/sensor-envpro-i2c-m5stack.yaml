@@ -1,9 +1,9 @@
 bme68x_bsec2_i2c:
   model: bme688
-  state_save_interval: 5min
+  state_save_interval: 6h # The minimum interval at which to save the calibrated BSEC2 algorithm state to flash so that calibration doesn’t have to start from scratch on device restart. Defaults to 6h.
   address: 0x77
-  iaq_mode: static
-  sample_rate: lp
+  operating_age: 28d # The history BSEC2 considers for the automatic background calibration of the IAQ in days. That means changes in this time period will influence the IAQ value. Either 4d or 28d.
+  sample_rate: lp # Sample rate. Default is LP for low power consumption, sampling every 3 seconds. Can be ULP for ultra-low power, sampling every 5 minutes. This controls the sampling rate for gas-dependent sensors and will govern the interval at which the sensor heater is operated. By default, this rate will also be used for temperature, humidity and pressure sensors but can be overridden per-sensor if required.
 
 sensor:
   - platform: bme68x_bsec2
