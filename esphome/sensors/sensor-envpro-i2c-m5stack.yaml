@@ -1,6 +1,6 @@
 bme68x_bsec2_i2c:
   model: bme688
-  state_save_interval: 5min
+  state_save_interval: 15s
   address: 0x77
 
 sensor:
