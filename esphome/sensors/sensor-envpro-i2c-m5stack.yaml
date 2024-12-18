@@ -1,7 +1,9 @@
 bme68x_bsec2_i2c:
   model: bme688
-  state_save_interval: 1min
+  state_save_interval: 5min
   address: 0x77
+  iaq_mode: static
+  sample_rate: lp
 
 sensor:
   - platform: bme68x_bsec2
