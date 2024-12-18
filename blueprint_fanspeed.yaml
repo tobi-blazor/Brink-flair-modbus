@@ -16,9 +16,7 @@ blueprint:
       selector:
         entity:
           domain:
-          - number
-          device_class:
-          - temperature
+          - sensor
           multiple: false
     fan_switch:
       name: 💨 Fan
@@ -26,7 +24,7 @@ blueprint:
       selector:
         entity:
           domain:
-          - fan
+          - number
           multiple: false
     min_fan_speed:
       name: 💨 Minimum Fan Speed
