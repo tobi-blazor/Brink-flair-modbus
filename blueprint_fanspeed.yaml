@@ -166,7 +166,7 @@ action:
             alias: Is the percentage change great enough?
             value_template: "{{ speed_diff | float(0) > change_threshold | float(0) }}"
         sequence:
-          - service: number.set_percentage
+          - service: number.set_value
             target:
               entity_id: "{{fan_switch}}"
             data:
