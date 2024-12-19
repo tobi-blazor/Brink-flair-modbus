@@ -157,7 +157,8 @@ trigger:
 condition:
   - condition: template
     alias: Check for blocker entity
-    value_template: "{{ (blocker_entity == none) or (states(blocker_entity) == 'off')}}"
+    value_template: "{{ (blocker_entity is none) or (states(blocker_entity) == 'off') }}"
+
 action:
   - choose:
       - conditions:
@@ -165,7 +166,7 @@ action:
             alias: Is the percentage change great enough?
             value_template: "{{ speed_diff | float(0) > change_threshold | float(0) }}"
         sequence:
-          - service: number.set_value
+          - service: number.set_percentage
             target:
               entity_id: "{{fan_switch}}"
             data:
