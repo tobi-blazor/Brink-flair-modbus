@@ -146,7 +146,7 @@ variables:
     {% else %}
       {{ initial_set_fan_speed }}
     {% endif %}
-  set_fan_speed: "{{ adjusted_set_fan_speed | int }}"
+  set_fan_speed: "{{ adjusted_set_fan_speed }}"
   speed_diff: "{{(fan_speed - set_fan_speed)|abs}}"
 trigger:
   - platform: state
