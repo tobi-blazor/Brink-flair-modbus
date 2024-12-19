@@ -198,4 +198,21 @@ action:
               value: "{{set_fan_speed}}"
           - delay:
               minutes: !input change_time
+      - conditions:
+          - condition: not
+            alias: Make sure the fan hasn't just been turned on
+            conditions:
+              - condition: trigger
+                id: fanon
+          - condition: numeric_state
+            entity_id: !input temp_sensor
+            below: !input off_temp
+        sequence:
+          - service: number.set_value
+            target:
+              entity_id: !input fan_switch
+            data:
+              value: "{{0.0}}"
+          - delay:
+              minutes: !input change_time
 mode: single
