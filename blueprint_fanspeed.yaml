@@ -35,10 +35,10 @@ blueprint:
       selector:
         number:
           min: 0.0
-          max: 100.0
+          max: 400.0
           mode: slider
           step: 1.0
-          unit_of_measurement: "%"
+          unit_of_measurement: "m³/h"
     max_fan_speed:
       name: 💨 Maximum Fan Speed
       description: Set the maximum percentage speed for your fan.
@@ -46,10 +46,10 @@ blueprint:
       selector:
         number:
           min: 0.0
-          max: 100.0
+          max: 400.0
           mode: slider
           step: 1.0
-          unit_of_measurement: "%"
+          unit_of_measurement: "m³/h"
     max_temp:
       name: 📈 Maximum Temperature
       description: What temperature would you like the fan to run at max fan speed.
@@ -133,7 +133,7 @@ variables:
   blocker_entity: !input blocker_entity
 
   current_temp: "{{ states(temp_sensor) | float(0)}}"
-  fan_speed: "{{ state_attr(fan_switch,'percentage') | float(0)}}"
+  fan_speed: "{{ fan_switch | float(0)}}"
   temp_range: "{{max_temp | float(0)-min_temp | float(0)}}"
   fan_range: "{{max_fan_speed | float(0) - min_fan_speed | float(0)}}"
   slope: "{{fan_range | float(0)/temp_range | float(0)}}"
@@ -147,7 +147,7 @@ variables:
     {% else %}
       {{ initial_set_fan_speed }}
     {% endif %}
-  set_fan_speed: "{{ adjusted_set_fan_speed * 4 }}"
+  set_fan_speed: "{{ adjusted_set_fan_speed }}"
   speed_diff: "{{(fan_speed - set_fan_speed)|abs}}"
 trigger:
   - platform: state
