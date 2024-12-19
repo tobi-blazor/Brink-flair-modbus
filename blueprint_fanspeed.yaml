@@ -115,6 +115,20 @@ blueprint:
         entity:
           multiple: false
 
+    off_temp:
+      name: 🛑 The temperature the fan switches off
+      description:
+        What temperature would you like the fan to turn off? When the temperature falls below this value,
+        the fan turns off. When the temperature rises above this value, the fan will automatically turn back on
+        (unless you disable this via the "Enable auto fan on" setting).
+      default: 22
+      selector:
+        number:
+          min: 0.0
+          max: 3000.0
+          step: 10.0
+          mode: slider
+
   source_url: https://community.home-assistant.io/t/adaptive-fan-speed-control-based-on-temperature-and-speed-range/678152
 variables:
   temp_sensor: !input temp_sensor
@@ -125,6 +139,7 @@ variables:
 
   max_temp: !input max_temp
   min_temp: !input min_temp
+  off_temp: !input off_temp
 
   change_time: !input change_time
   max_change: !input max_change
@@ -170,6 +185,23 @@ action:
               entity_id: !input fan_switch
             data:
               value: "{{set_fan_speed}}"
+          - delay:
+              minutes: !input change_time
+      - conditions:
+          - condition: not
+            alias: Make sure the fan hasn't just been turned on
+            conditions:
+              - condition: trigger
+                id: fanon
+          - condition: numeric_state
+            entity_id: !input temp_sensor
+            below: !input off_temp
+        sequence:
+          - service: number.set_value
+            target:
+              entity_id: !input fan_switch
+            data:
+              value: "{{0.0}}"
           - delay:
               minutes: !input change_time
 mode: single
