@@ -115,20 +115,6 @@ blueprint:
         entity:
           multiple: false
 
-    off_temp:
-      name: 🛑 The temperature the fan switches off
-      description:
-        What temperature would you like the fan to turn off? When the temperature falls below this value,
-        the fan turns off. When the temperature rises above this value, the fan will automatically turn back on
-        (unless you disable this via the "Enable auto fan on" setting).
-      default: 22
-      selector:
-        number:
-          min: 0.0
-          max: 3000.0
-          step: 10.0
-          mode: slider
-
   source_url: https://community.home-assistant.io/t/adaptive-fan-speed-control-based-on-temperature-and-speed-range/678152
 variables:
   temp_sensor: !input temp_sensor
@@ -139,7 +125,6 @@ variables:
 
   max_temp: !input max_temp
   min_temp: !input min_temp
-  off_temp: !input off_temp
 
   change_time: !input change_time
   max_change: !input max_change
@@ -161,7 +146,7 @@ variables:
     {% else %}
       {{ initial_set_fan_speed }}
     {% endif %}
-  set_fan_speed: "{{ adjusted_set_fan_speed | int }}"
+  set_fan_speed: "{{ adjusted_set_fan_speed }}"
   speed_diff: "{{(fan_speed - set_fan_speed)|abs}}"
 trigger:
   - platform: state
@@ -176,43 +161,15 @@ condition:
 action:
   - choose:
       - conditions:
-          - condition: numeric_state
-            entity_id: sensor.brink_co2_abluft
-            below: 720
-        sequence:
-          - target:
-              entity_id: number.brink_modbus_l_ftergeschwindigkeit
-            data:
-              value: "{{ 0 if states('sensor.brink_co2_abluft') | float < 720 else state_attr('number.brink_modbus_l_ftergeschwindigkeit', 'value') }}"
-          - delay:
-              minutes: 1
-      - conditions:
           - condition: template
             alias: Is the percentage change great enough?
-            value_template: "{{ speed_diff | float(0) > change_threshold | float(0) }}"
+            value_template: "{{ speed_diff | int > change_threshold | int }}"
         sequence:
           - service: number.set_value
             target:
               entity_id: !input fan_switch
             data:
-              value: "{{set_fan_speed}}"
-          - delay:
-              minutes: !input change_time
-      - conditions:
-          - condition: not
-            alias: Make sure the fan hasn't just been turned on
-            conditions:
-              - condition: trigger
-                id: fanon
-          - condition: numeric_state
-            entity_id: !input temp_sensor
-            below: !input off_temp
-        sequence:
-          - service: number.set_value
-            target:
-              entity_id: !input fan_switch
-            data:
-              value: "{{0.0}}"
+              value: "{{set_fan_speed | int}}"
           - delay:
               minutes: !input change_time
 mode: single
