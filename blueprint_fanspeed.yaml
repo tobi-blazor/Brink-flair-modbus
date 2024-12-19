@@ -176,18 +176,6 @@ condition:
 action:
   - choose:
       - conditions:
-          - condition: template
-            alias: Is the percentage change great enough?
-            value_template: "{{ speed_diff | float(0) > change_threshold | float(0) }}"
-        sequence:
-          - service: number.set_value
-            target:
-              entity_id: !input fan_switch
-            data:
-              value: "{{set_fan_speed}}"
-          - delay:
-              minutes: !input change_time
-      - conditions:
           - condition: numeric_state
             entity_id: !input temp_sensor
             below: !input off_temp
@@ -197,6 +185,18 @@ action:
               entity_id: !input fan_switch
             data:
               value: "{{0.0}}"
+          - delay:
+              minutes: !input change_time
+      - conditions:
+          - condition: template
+            alias: Is the percentage change great enough?
+            value_template: "{{ speed_diff | float(0) > change_threshold | float(0) }}"
+        sequence:
+          - service: number.set_value
+            target:
+              entity_id: !input fan_switch
+            data:
+              value: "{{set_fan_speed}}"
           - delay:
               minutes: !input change_time
 mode: single
