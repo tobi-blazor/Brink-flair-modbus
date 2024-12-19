@@ -94,7 +94,7 @@ blueprint:
           max: 100.0
           mode: slider
           step: 1.0
-          unit_of_measurement: "%"
+          unit_of_measurement: "m³/h"
     max_change:
       name: Maximum percentage change
       description: The maximum change (between current fan speed and set
@@ -131,22 +131,22 @@ variables:
   change_threshold: !input change_threshold
   blocker_entity: !input blocker_entity
 
-  current_temp: "{{ states(temp_sensor) | float(0)}}"
-  fan_speed: "{{ fan_switch | float(0)}}"
-  temp_range: "{{max_temp | float(0)-min_temp | float(0)}}"
-  fan_range: "{{max_fan_speed | float(0) - min_fan_speed | float(0)}}"
-  slope: "{{fan_range | float(0)/temp_range | float(0)}}"
-  initial_set_fan_speed: "{{ [[slope|float(0) * (current_temp|float(0) - min_temp|float(0)) + min_fan_speed|float(0),  min_fan_speed] | max, max_fan_speed] | min}}"
+  current_temp: "{{ states(temp_sensor) | int}}"
+  fan_speed: "{{ fan_switch | int }}"
+  temp_range: "{{max_temp | int-min_temp | int}}"
+  fan_range: "{{max_fan_speed | int - min_fan_speed | int}}"
+  slope: "{{fan_range | int/temp_range | int}}"
+  initial_set_fan_speed: "{{ [[slope|int * (current_temp|int - min_temp|int) + min_fan_speed|int,  min_fan_speed] | max, max_fan_speed] | min}}"
   adjusted_set_fan_speed: >
     {% set diff = initial_set_fan_speed - fan_speed %}
-    {% if diff > max_change|float(0) %}
-      {{ fan_speed + max_change|float(0) }}
-    {% elif diff < -max_change|float(0) %}
-      {{ fan_speed - max_change|float(0) }}
+    {% if diff > max_change|int %}
+      {{ fan_speed + max_change|int }}
+    {% elif diff < -max_change|int %}
+      {{ fan_speed - max_change|int }}
     {% else %}
       {{ initial_set_fan_speed }}
     {% endif %}
-  set_fan_speed: "{{ adjusted_set_fan_speed }}"
+  set_fan_speed: "{{ adjusted_set_fan_speed | int }}"
   speed_diff: "{{(fan_speed - set_fan_speed)|abs}}"
 trigger:
   - platform: state
@@ -163,7 +163,7 @@ action:
       - conditions:
           - condition: template
             alias: Is the percentage change great enough?
-            value_template: "{{ speed_diff | float(0) > change_threshold | float(0) }}"
+            value_template: "{{ speed_diff | int > change_threshold | int }}"
         sequence:
           - service: number.set_value
             target:
