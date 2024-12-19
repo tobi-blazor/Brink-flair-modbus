@@ -97,17 +97,16 @@ blueprint:
           unit_of_measurement: "%"
     max_change:
       name: Maximum percentage change
-      description:
-        The maximum percentage change (between current fan speed and set
+      description: The maximum change (between current fan speed and set
         fan speed)
       default: 50
       selector:
         number:
-          min: 1.0
-          max: 100.0
+          min: 0.0
+          max: 400.0
           mode: slider
           step: 1.0
-          unit_of_measurement: "%"
+          unit_of_measurement: "m³/h"
     blocker_entity:
       name: (OPTIONAL) Blocking entity
       description: If this entity's state is on, it will prevent the automation from running. E.g. sleepmode or away mode.
