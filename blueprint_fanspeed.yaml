@@ -177,16 +177,15 @@ action:
   - choose:
       - conditions:
           - condition: numeric_state
-            entity_id: !input temp_sensor
-            below: !input off_temp
+            entity_id: sensor.brink_co2_abluft
+            below: 720
         sequence:
-          - service: number.set_value
-            target:
-              entity_id: !input fan_switch
+          - target:
+              entity_id: number.brink_modbus_l_ftergeschwindigkeit
             data:
-              value: 0.0
+              value: "{{ 0 if states('sensor.brink_co2_abluft') | float < 720 else state_attr('number.brink_modbus_l_ftergeschwindigkeit', 'value') }}"
           - delay:
-              minutes: !input change_time
+              minutes: 1
       - conditions:
           - condition: template
             alias: Is the percentage change great enough?
