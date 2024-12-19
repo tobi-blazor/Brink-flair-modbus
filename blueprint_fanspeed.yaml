@@ -188,11 +188,6 @@ action:
           - delay:
               minutes: !input change_time
       - conditions:
-          - condition: not
-            alias: Make sure the fan hasn't just been turned on
-            conditions:
-              - condition: trigger
-                id: fanon
           - condition: numeric_state
             entity_id: !input temp_sensor
             below: !input off_temp
