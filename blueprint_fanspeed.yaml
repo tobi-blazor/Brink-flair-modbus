@@ -168,7 +168,7 @@ action:
         sequence:
           - service: number.set_value
             target:
-              entity_id: "{{fan_switch}}"
+              entity_id: !input fan_switch
             data:
               value: "{{set_fan_speed}}"
           - delay:
