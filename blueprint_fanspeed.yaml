@@ -170,7 +170,7 @@ action:
             target:
               entity_id: "{{fan_switch}}"
             data:
-              percentage: "{{set_fan_speed}}"
+              value: "{{set_fan_speed}}"
           - delay:
               minutes: !input change_time
 mode: single
