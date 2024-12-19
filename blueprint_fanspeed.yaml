@@ -184,7 +184,7 @@ action:
             target:
               entity_id: !input fan_switch
             data:
-              value: "{{0.0}}"
+              value: 0.0
           - delay:
               minutes: !input change_time
       - conditions:
