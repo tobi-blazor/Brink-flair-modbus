@@ -201,13 +201,13 @@ variables:
   co2_slope: "{{co2_fan_range | float(0)/co2_temp_range | float(0)}}"
   co2_initial_set_fan_speed: "{{ [[co2_slope|float(0) * (current_co2|float(0) - min_co2|float(0)) + min_fan_speed|float(0),  min_fan_speed] | max, max_fan_speed] | min}}"
   co2_adjusted_set_fan_speed: >
-    co2_{% set diff = initial_set_fan_speed - fan_speed %}
+    {% set diff = co2_initial_set_fan_speed - fan_speed %}
     {% if diff > max_change|float(0) %}
       {{ fan_speed + max_change|float(0) }}
     {% elif diff < -max_change|float(0) %}
       {{ fan_speed - max_change|float(0) }}
     {% else %}
-      co2_{{ initial_set_fan_speed }}
+      {{ co2_initial_set_fan_speed }}
     {% endif %}
 
   current_iaq: "{{ states(iaq_sensor) | float(0)}}"
@@ -216,13 +216,13 @@ variables:
   iaq_slope: "{{iaq_fan_range | float(0)/iaq_temp_range | float(0)}}"
   iaq_initial_set_fan_speed: "{{ [[iaq_slope|float(0) * (current_iaq|float(0) - min_iaq|float(0)) + min_fan_speed|float(0),  min_fan_speed] | max, max_fan_speed] | min}}"
   iaq_adjusted_set_fan_speed: >
-    iaq_{% set diff = initial_set_fan_speed - fan_speed %}
+    {% set diff = iaq_initial_set_fan_speed - fan_speed %}
     {% if diff > max_change|float(0) %}
       {{ fan_speed + max_change|float(0) }}
     {% elif diff < -max_change|float(0) %}
       {{ fan_speed - max_change|float(0) }}
     {% else %}
-      iaq_{{ initial_set_fan_speed }}
+      {{ iaq_initial_set_fan_speed }}
     {% endif %}
 
   current_humidity: "{{ states(humidity_sensor) | float(0)}}"
@@ -231,13 +231,13 @@ variables:
   humidity_slope: "{{humidity_fan_range | float(0)/humidity_temp_range | float(0)}}"
   humidity_initial_set_fan_speed: "{{ [[humidity_slope|float(0) * (current_humidity|float(0) - min_humidity|float(0)) + min_fan_speed|float(0),  min_fan_speed] | max, max_fan_speed] | min}}"
   humidity_adjusted_set_fan_speed: >
-    humidity_{% set diff = initial_set_fan_speed - fan_speed %}
+    {% set diff = humidity_initial_set_fan_speed - fan_speed %}
     {% if diff > max_change|float(0) %}
       {{ fan_speed + max_change|float(0) }}
     {% elif diff < -max_change|float(0) %}
       {{ fan_speed - max_change|float(0) }}
     {% else %}
-      humidity_{{ initial_set_fan_speed }}
+      {{ humidity_initial_set_fan_speed }}
     {% endif %}
 
   set_fan_speed: "{{ [co2_adjusted_set_fan_speed, iaq_adjusted_set_fan_speed, humidity_adjusted_set_fan_speed] | max }}"
