@@ -47,7 +47,7 @@ blueprint:
     min_fan_speed:
       name: 💨 Minimum Fan Speed
       description: Set the minimum percentage speed when your fan is still on.
-      default: 16
+      default: 50
       selector:
         number:
           min: 0.0
@@ -58,7 +58,7 @@ blueprint:
     max_fan_speed:
       name: 💨 Maximum Fan Speed
       description: Set the maximum percentage speed for your fan.
-      default: 100
+      default: 400
       selector:
         number:
           min: 0.0
@@ -103,13 +103,13 @@ blueprint:
       selector:
         number:
           min: 0.0
-          max: 200.0
+          max: 300.0
           step: 1.0
           mode: slider
     min_humidity:
       name: 📉 Minimum Humidity
       description: What Humidity would you like the fan to run at minimum speed.
-      default: 50
+      default: 60
       selector:
         number:
           min: 0.0
@@ -119,7 +119,7 @@ blueprint:
     max_humidity:
       name: 📈 Maximum Humidity
       description: What Humidity would you like the fan to run at max fan speed.
-      default: 150
+      default: 80
       selector:
         number:
           min: 0.0
@@ -244,7 +244,7 @@ variables:
   speed_diff: "{{(fan_speed | int - set_fan_speed | int)|abs}}"
 trigger:
   - platform: state
-    id: temp_state_change
+    id: co2_state_change
     entity_id:
       - !input co2_sensor
 condition:
