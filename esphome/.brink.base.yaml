@@ -4,7 +4,7 @@ esphome:
   name: ${name}
   friendly_name: ${friendly_name}
   on_boot:
-    priority: 200
+    priority: -100
     then:
       - script.execute: on_boot
 
@@ -27,21 +27,44 @@ time:
       then:
         - logger.log: "Synchronized sntp clock"
 
+globals:
+  ###  Last desired flow rate (register 8002) > 0, written again after the mode was (re)set to Modbus Flow.
+  ###  Brink manual 614882: after a mains disconnect 8000-8011 and the desired flow must be set again.
+  - id: brink_last_flow_rate
+    type: int
+    restore_value: true
+    initial_value: '100'
+
 script:
   ###  On reboot or powerloss of the esp, set the command to Modbus Flow (2) instead of Device LCD (0), which is the default.
-  ###  Modbus Flow is needed so the device follows the flow rate in register 8002 (e.g. demand control from Home Assistant).
-  ###  Modbus Step (1) would only follow the step in register 8001 and ignore 8002.
+  ###  Modbus Flow is needed so the device follows the flow rate in register 8002 (e.g. demand control from Home Assistant)
+  ###  and accepts standby commands (register 8003). Modbus Step (1) ignores 8002 and rejects 8003 with exception 03.
   - id: on_boot
     then:
-      - lambda: |-
-          auto new_value = 2;
+      - script.execute: brink_set_flow_mode
 
-          esphome::modbus_controller::ModbusController *controller = id(${name});
-          auto set_value_cmd = esphome::modbus_controller::ModbusCommandItem::create_write_single_command(
-            controller, 8000, new_value);
-
-          delay(20) ;
-          controller->queue_command(set_value_cmd);
+  ###  Write 8000 = 2 first, then the last desired flow rate. The hub sends queued requests in order.
+  - id: brink_set_flow_mode
+    mode: single
+    then:
+      - modbus_client.write_single_register:
+          address: ${modbusaddress}
+          start_address: 8000
+          value: 2
+          on_error:
+            - logger.log:
+                level: WARN
+                format: "Setting Modbus Flow (8000 = 2) failed, exception %d"
+                args: ['(int) exception_code']
+      - modbus_client.write_single_register:
+          address: ${modbusaddress}
+          start_address: 8002
+          value: !lambda 'return (uint16_t) id(brink_last_flow_rate);'
+          on_error:
+            - logger.log:
+                level: WARN
+                format: "Restoring flow rate (8002) failed, exception %d"
+                args: ['(int) exception_code']
 
 ## Option for multiple DS18b20's on last 3 terminals -/S(ignal)/+
 ## Comment with # if not used.
@@ -56,12 +79,14 @@ script:
 modbus:
   id: modbus_brink
   send_wait_time: 200ms
+  ###  Spacing between requests (replaces command_throttle of modbus_controller since ESPHome 2026.9).
+  ###  The default of 600 ms would stretch one poll cycle beyond update_interval; the Brink answers within ~10 ms.
+  turnaround_time: 200ms
 
 modbus_controller:
   - id: ${name}
     ## Brink Modbus slaveaddress 1
     address: ${modbusaddress}
-    command_throttle: 200ms
     setup_priority: -10
     update_interval: 10s
 
@@ -361,7 +386,6 @@ text_sensor:
     address: 4020
     raw_encode: NONE
     icon: mdi:home-heart
-    skip_updates: 20
     lambda: |-
       uint16_t int_mode = (data[item->offset] << 8) + data[item->offset+1];
       ESP_LOGD("main","Parsed operation mode int : %d", int_mode);
@@ -393,7 +417,6 @@ text_sensor:
     address: 4050
     raw_encode: NONE
     icon: mdi:valve
-    skip_updates: 0   # read every poll instead of every 20th, so short open/close cycles are visible
     lambda: |-
       uint16_t int_mode = (data[item->offset] << 8) + data[item->offset+1];
       std::string mode_str;
@@ -416,7 +439,6 @@ text_sensor:
     address: 4070
     raw_encode: NONE
     icon: mdi:penguin
-    skip_updates: 20
     lambda: |-
       uint16_t int_mode = (data[item->offset] << 8) + data[item->offset+1];
       ESP_LOGD("main","Parsed operation mode int : %d", int_mode);
@@ -451,7 +473,6 @@ text_sensor:
     address: 4100
     raw_encode: NONE
     icon: mdi:air-filter
-    skip_updates: 20
     lambda: |-
       uint16_t int_mode = (data[item->offset] << 8) + data[item->offset+1];
       ESP_LOGD("main","Parsed operation mode int : %d", int_mode);
@@ -470,11 +491,23 @@ select:
     address: 8000
     value_type: S_WORD
     optimistic: true
-    skip_updates: 20
     optionsmap:
       "Device LCD": 0
       "Modbus Step": 1
       "Modbus Flow": 2
+    ###  Watchdog: if the unit falls back to another mode (e.g. after a mains disconnect of the Brink only),
+    ###  set Modbus Flow and the last flow rate again. Can be disabled with the "Force Modbus Flow" switch.
+    on_value:
+      then:
+        - if:
+            condition:
+              lambda: 'return x != "Modbus Flow" && id(brink_force_flow_mode).state;'
+            then:
+              - logger.log:
+                  level: WARN
+                  format: "Modbus control mode is '%s', setting Modbus Flow again"
+                  args: ['x.c_str()']
+              - script.execute: brink_set_flow_mode
   #    on_value:
   #        then:
   #          - lambda: |-
@@ -518,7 +551,6 @@ select:
     modbus_controller_id: ${name}
     address: 6100
     value_type: S_WORD
-    skip_updates: 0     # read every poll instead of every 20th
     optimistic: true    # show the chosen option immediately in HA
     optionsmap:
       ${auto}: 0
@@ -549,26 +581,51 @@ switch:
     icon: mdi:toggle-switch
     disabled_by_default: true
 
+  ###  Standby via register 8003: write 1 = standby, 2 = normal; read 0/1 = actual standby status.
+  ###  The unit only accepts it in Modbus Flow mode. Not optimistic: HA shows the state read back from 8003,
+  ###  so a rejected command is visible. restore_mode DISABLED: no write at boot (the unit keeps its own state).
   - id: brink_standby_switch
     name: ${brink_standby_switch}
     platform: template
+    restore_mode: DISABLED
+    lambda: 'return id(brink_standby_status).state;'
+    turn_on_action:
+      - modbus_client.write_single_register:
+          address: ${modbusaddress}
+          start_address: 8003
+          value: 1
+          on_error:
+            - logger.log:
+                level: WARN
+                format: "Standby on (8003 = 1) rejected, exception %d. Is the control mode Modbus Flow?"
+                args: ['(int) exception_code']
+    turn_off_action:
+      - modbus_client.write_single_register:
+          address: ${modbusaddress}
+          start_address: 8003
+          value: 2
+          on_error:
+            - logger.log:
+                level: WARN
+                format: "Standby off (8003 = 2) rejected, exception %d. Is the control mode Modbus Flow?"
+                args: ['(int) exception_code']
+
+  - id: brink_force_flow_mode
+    name: Force Modbus Flow
+    platform: template
     optimistic: true
-    on_turn_on:
-      then:
-        - lambda: |-
-            esphome::modbus_controller::ModbusController *controller = id(${name});
-            auto set_value_cmd = esphome::modbus_controller::ModbusCommandItem::create_write_single_command(
-              controller, 8003, 1);
-            delay(20) ;
-            controller->queue_command(set_value_cmd);
-    on_turn_off:
-      then:
-        - lambda: |-
-            esphome::modbus_controller::ModbusController *controller = id(${name});
-            auto set_value_cmd = esphome::modbus_controller::ModbusCommandItem::create_write_single_command(
-              controller, 8003, 2);
-            delay(20) ;
-            controller->queue_command(set_value_cmd);
+    restore_mode: RESTORE_DEFAULT_ON
+    entity_category: config
+    icon: mdi:fan-auto
+
+binary_sensor:
+  - id: brink_standby_status
+    name: Standby Status
+    platform: modbus_controller
+    modbus_controller_id: ${name}
+    register_type: holding
+    address: 8003
+    bitmask: 1
 
 button:
   - id: brink_reset_filter_button
