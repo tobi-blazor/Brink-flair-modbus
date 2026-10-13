@@ -28,11 +28,13 @@ time:
         - logger.log: "Synchronized sntp clock"
 
 script:
-  ###  On reboot or powerloss of the esp, set the command to Modbus Step instead of Device LCD which is the default.
+  ###  On reboot or powerloss of the esp, set the command to Modbus Flow (2) instead of Device LCD (0), which is the default.
+  ###  Modbus Flow is needed so the device follows the flow rate in register 8002 (e.g. demand control from Home Assistant).
+  ###  Modbus Step (1) would only follow the step in register 8001 and ignore 8002.
   - id: on_boot
     then:
       - lambda: |-
-          auto new_value = 1;
+          auto new_value = 2;
 
           esphome::modbus_controller::ModbusController *controller = id(${name});
           auto set_value_cmd = esphome::modbus_controller::ModbusCommandItem::create_write_single_command(
