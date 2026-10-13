@@ -10,6 +10,10 @@ number:
     min_value: 0
     max_value: 280
     mode: slider
+    ###  Remember the last desired flow > 0, it is written again after Modbus Flow was (re)set (see .brink.base.yaml).
+    on_value:
+      then:
+        - lambda: 'if (x > 0) id(brink_last_flow_rate) = (int) x;'
 
   - id: brink_flow_0
     name: Flow 0
